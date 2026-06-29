@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Biometrico">
+<title>Biometrico</title>
+<style>
+  :root {
+    --bg: #0F1117;
+    --surface: #1A1F2E;
+    --surface2: #242938;
+    --amber: #D4A843;
+    --amber-dim: rgba(212,168,67,0.15);
+    --amber-glow: rgba(212,168,67,0.3);
+    --text: #E8E9F0;
+    --text-muted: #7A7F94;
+    --green: #4CAF82;
+    --red: #E05C5C;
+    --blue: #5C9EE0;
+    --radius: 12px;
+    --radius-sm: 8px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
+    min-height: 100vh;
+    padding-bottom: 100px;
+  }
+
+  /* HEADER */
+  .header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(15,17,23,0.95);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    padding: 16px 20px 12px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .header-title {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--amber);
+  }
+
+  .header-date {
+    font-size: 13px;
+    color: var(--text-muted);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* NAV TABS */
+  .nav {
+    display: flex;
+    padding: 12px 20px 0;
+    gap: 8px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .nav::-webkit-scrollbar { display: none; }
+
+  .nav-btn {
+    flex-shrink: 0;
+    padding: 8px 16px;
+    border-radius: 20px;
+    border: 1px solid rgba(255,255,255,0.1);
+    background: transparent;
+    color: var(--text-muted);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .nav-btn.active {
+    background: var(--amber-dim);
+    border-color: var(--amber);
+    color: var(--amber);
+  }
+
+  /* VIEWS */
+  .view { display: none; padding: 16px 20px; }
+  .view.active { display: block; }
+
+  /* SECTION */
+  .section {
+    background: var(--surface);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 12px;
+  }
+
+  .section-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 16px;
+  }
+
+  /* METRIC ROW */
+  .metric {
+    margin-bottom: 20px;
+  }
+  .metric:last-child { margin-bottom: 0; }
+
+  .metric-name {
+    font-size: 14px;
+    color: var(--text);
+    margin-bottom: 10px;
+    font-weight: 500;
+  }
+
+  /* SCALE 1-5 */
+  .scale {
+    display: flex;
+    gap: 8px;
+  }
+
+  .scale-btn {
+    flex: 1;
+    height: 44px;
+    border-radius: var(--radius-sm);
+    border: 1px solid rgba(255,255,255,0.1);
+    background: var(--surface2);
+    color: var(--text-muted);
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.12s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .scale-btn.selected {
+    background: var(--amber-dim);
+    border-color: var(--amber);
+    color: var(--amber);
+    box-shadow: 0 0 12px var(--amber-glow);
+  }
+
+  .scale-labels {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 6px;
+    padding: 0 2px;
+  }
+
+  .scale-label-text {
+    font-size: 10px;
+    color: var(--text-muted);
+  }
+
+  /* TIME INPUTS */
+  .time-row {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .time-field {
+    flex: 1;
+  }
+
+  .time-field label {
+    display: block;
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .time-field input[type="time"] {
+    width: 100%;
+    height: 44px;
+    background: var(--surface2);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    font-size: 18px;
+    font-weight: 500;
+    padding: 0 12px;
+    -webkit-appearance: none;
+    font-variant-numeric: tabular-nums;
+    font-family: -apple-system, BlinkMacSystemFont, monospace;
+  }
+
+  .time-field input[type="time"]:focus {
+    outline: none;
+    border-color: var(--amber);
+  }
+
+  /* MULTI SELECT */
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .chip {
+    padding: 8px 14px;
+    border-radius: 20px;
+    border: 1px solid rgba(255,255,255,0.1);
+    background: var(--surface2);
+    color: var(--text-muted);
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.12s;
+    font-weight: 500;
+  }
+
+  .chip.selected {
+    background: var(--amber-dim);
+    border-color: var(--amber);
+    color: var(--amber);
+  }
+
+  /* NOTE TEXTAREA */
+  .note-area {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    font-size: 14px;
+    padding: 12px;
+    resize: none;
+    font-family: inherit;
+    line-height: 1.5;
+    min-height: 80px;
+  }
+  .note-area::placeholder { color: var(--text-muted); }
+  .note-area:focus { outline: none; border-color: var(--amber); }
+
+  /* SAVE BUTTON */
+  .save-btn {
+    width: 100%;
+    height: 52px;
+    background: var(--amber);
+    color: #0F1117;
+    border: none;
+    border-radius: var(--radius);
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    letter-spacing: 0.03em;
+    margin-top: 8px;
+    transition: opacity 0.15s;
+  }
+  .save-btn:active { opacity: 0.85; }
+
+  /* TOAST */
+  .toast {
+    position: fixed;
+    bottom: 32px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--surface2);
+    border: 1px solid rgba(255,255,255,0.12);
+    color: var(--text);
+    padding: 12px 20px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 500;
+    opacity: 0;
+    transition: all 0.25s;
+    pointer-events: none;
+    white-space: nowrap;
+    z-index: 999;
+  }
+  .toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+  .toast.success { border-color: var(--green); color: var(--green); }
+  .toast.error { border-color: var(--red); color: var(--red); }
+
+  /* HISTORY */
+  .history-controls {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .ctrl-btn {
+    flex: 1;
+    height: 44px;
+    background: var(--surface);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.12s;
+  }
+  .ctrl-btn:active { opacity: 0.7; }
+  .ctrl-btn.danger { color: var(--red); border-color: rgba(224,92,92,0.3); }
+
+  .entry-card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-bottom: 10px;
+  }
+
+  .entry-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+
+  .entry-date {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--amber);
+  }
+
+  .entry-session {
+    font-size: 11px;
+    color: var(--text-muted);
+    background: var(--surface2);
+    padding: 3px 10px;
+    border-radius: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+  }
+
+  .entry-metrics {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .entry-metric {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  .entry-metric-val {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-muted);
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  .empty-state .icon {
+    font-size: 40px;
+    margin-bottom: 12px;
+    display: block;
+  }
+
+  /* Score dot */
+  .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .dot-1 { background: var(--red); }
+  .dot-2 { background: #E07A5C; }
+  .dot-3 { background: #D4C243; }
+  .dot-4 { background: #7EC87E; }
+  .dot-5 { background: var(--green); }
+
+</style>
+</head>
+<body>
+
+<div class="header">
+  <span class="header-title">Biometrico</span>
+  <span class="header-date" id="headerDate"></span>
+</div>
+
+<div class="nav">
+  <button class="nav-btn active" onclick="showView('mattina')">Mattina</button>
+  <button class="nav-btn" onclick="showView('mezzogiorno')">Mezzogiorno</button>
+  <button class="nav-btn" onclick="showView('sera')">Sera</button>
+  <button class="nav-btn" onclick="showView('storico')">Storico</button>
+</div>
+
+<!-- ===================== MATTINA ===================== -->
+<div class="view active" id="view-mattina">
+
+  <div class="section" style="margin-top:16px">
+    <div class="section-label">Sonno</div>
+
+    <div class="time-row">
+      <div class="time-field">
+        <label>Letto</label>
+        <input type="time" id="m_letto" value="23:00">
+      </div>
+      <div class="time-field">
+        <label>Sveglia</label>
+        <input type="time" id="m_sveglia" value="07:00">
+      </div>
+    </div>
+
+    <div class="metric">
+      <div class="metric-name">Qualità del sonno</div>
+      <div class="scale" id="scale_m_sonno">
+        <button class="scale-btn" onclick="setScale('m_sonno',1,this)">1</button>
+        <button class="scale-btn" onclick="setScale('m_sonno',2,this)">2</button>
+        <button class="scale-btn" onclick="setScale('m_sonno',3,this)">3</button>
+        <button class="scale-btn" onclick="setScale('m_sonno',4,this)">4</button>
+        <button class="scale-btn" onclick="setScale('m_sonno',5,this)">5</button>
+      </div>
+      <div class="scale-labels">
+        <span class="scale-label-text">Pessimo</span>
+        <span class="scale-label-text">Ottimo</span>
+      </div>
+    </div>
+
+    <div class="metric">
+      <div class="metric-name">Energia al risveglio</div>
+      <div class="scale" id="scale_m_energia">
+        <button class="scale-btn" onclick="setScale('m_energia',1,this)">1</button>
+        <button class="scale-btn" onclick="setScale('m_energia',2,this)">2</button>
+        <button class="scale-btn" onclick="setScale('m_energia',3,this)">3</button>
+        <button class="scale-btn" onclick="setScale('m_energia',4,this)">4</button>
+        <button class="scale-btn" onclick="setScale('m_energia',5,this)">5</button>
+      </div>
+      <div class="scale-labels">
+        <span class="scale-label-text">A pezzi</span>
+        <span class="scale-label-text">In forma</span>
+      </div>
+    </div>
+  </div>
+
+  <button class="save-btn" onclick="saveSession('mattina')">Salva mattina</button>
+</div>
+
+<!-- ===================== MEZZOGIORNO ===================== -->
+<div class="view" id="view-mezzogiorno">
+
+  <div class="section" style="margin-top:16px">
+    <div class="section-label">Ore 13:00</div>
+
+    <div class="metric">
+      <div class="metric-name">Energia fisica</div>
+      <div class="scale" id="scale_g_energiafis">
+        <button class="scale-btn" onclick="setScale('g_energiafis',1,this)">1</button>
+        <button class="scale-btn" onclick="setScale('g_energiafis',2,this)">2</button>
+        <button class="scale-btn" onclick="setScale('g_energiafis',3,this)">3</button>
+        <button class="scale-btn" onclick="setScale('g_energiafis',4,this)">4</button>
+        <button class="scale-btn" onclick="setScale('g_energiafis',5,this)">5</button>
+      </div>
+      <div class="scale-labels">
+        <span class="scale-label-text">Stanco</span>
+        <span class="scale-label-text">Carico</span>
+      </div>
+    </div>
+
+    <div class="metric">
+      <div class="metric-name">Lucidità cognitiva</div>
+      <div class="scale" id="scale_g_lucidita">
+        <button class="scale-btn" onclick="setScale('g_lucidita',1,this)">1</button>
+        <button class="scale-btn" onclick="setScale('g_lucidita',2,this)">2</button>
+        <button class="scale-btn" onclick="setScale('g_lucidita',3,this)">3</button>
+        <button class="scale-btn" onclick="setScale('g_lucidita',4,this)">4</button>
+        <button class="scale-btn" onclick="setScale('g_lucidita',5,this)">5</button>
+      </div>
+      <div class="scale-labels">
+        <span class="scale-label-text">Annebbiato</span>
+        <span class="scale-label-text">Focus totale</span>
+      </div>
+    </div>
+
+    <div class="metric">
+      <div class="metric-name">Umore</div>
+      <div class="scale" id="scale_g_umore">
+        <button class="scale-btn" onclick="setScale('g_umore',1,this)">1</button>
+        <button class="scale-btn" onclick="setScale('g_umore',2,this)">2</button>
+        <button class="scale-btn" onclick="setScale('g_umore',3,this)">3</button>
+        <button class="scale-btn" onclick="setScale('g_umore',4,this)">4</button>
+        <button class="scale-btn" onclick="setScale('g_umore',5,this)">5</button>
+      </div>
+      <div class="scale-labels">
+        <span class="scale-label-text">Giù</span>
+        <span class="scale-label-text">Positivo</span>
+      </div>
+    </div>
+  </div>
+
+  <button class="save-btn" onclick="saveSession('mezzogiorno')">Salva mezzogiorno</button>
+</div>
+
+<!-- ===================== SERA ===================== -->
+<div class="view" id="view-sera">
+
+  <div class="section" style="margin-top:16px">
+    <div class="section-label">Ore 18–19</div>
+
+    <div class="metric">
+      <div class="metric-name">Energia fisica</div>
+      <div class="scale" id="scale_s_energiafis">
+        <button class="scale-btn" onclick="setScale('s_energiafis',1,this)">1</button>
+        <button class="scale-btn" onclick="setScale('s_energiafis',2,this)">2</button>
+        <button class="scale-btn" onclick="setScale('s_energiafis',3,this)">3</button>
+        <button class="scale-btn" onclick="setScale('s_energiafis',4,this)">4</button>
+        <button class="scale-btn" onclick="setScale('s_energiafis',5,this)">5</button>
+      </div>
+      <div class="scale-labels">
+        <span class="scale-label-text">Stanco</span>
+        <span class="scale-label-text">Carico</span>
+      </div>
+    </div>
+
+    <div class="metric">
+      <div class="metric-name">Lucidità cognitiva</div>
+      <div class="scale" id="scale_s_lucidita">
+        <button class="scale-btn" onclick="setScale('s_lucidita',1,this)">1</button>
+        <button class="scale-btn" onclick="setScale('s_lucidita',2,this)">2</button>
+        <button class="scale-btn" onclick="setScale('s_lucidita',3,this)">3</button>
+        <button class="scale-btn" onclick="setScale('s_lucidita',4,this)">4</button>
+        <button class="scale-btn" onclick="setScale('s_lucidita',5,this)">5</button>
+      </div>
+      <div class="scale-labels">
+        <span class="scale-label-text">Annebbiato</span>
+        <span class="scale-label-text">Focus totale</span>
+      </div>
+    </div>
+
+    <div class="metric">
+      <div class="metric-name">Livello di stress</div>
+      <div class="scale" id="scale_s_stress">
+        <button class="scale-btn" onclick="setScale('s_stress',1,this)">1</button>
+        <button class="scale-btn" onclick="setScale('s_stress',2,this)">2</button>
+        <button class="scale-btn" onclick="setScale('s_stress',3,this)">3</button>
+        <button class="scale-btn" onclick="setScale('s_stress',4,this)">4</button>
+        <button class="scale-btn" onclick="setScale('s_stress',5,this)">5</button>
+      </div>
+      <div class="scale-labels">
+        <span class="scale-label-text">Tranquillo</span>
+        <span class="scale-label-text">Sotto pressione</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-label">Contesto</div>
+
+    <div class="metric">
+      <div class="metric-name">Alcol ieri sera</div>
+      <div class="chips" id="chips_s_alcol">
+        <button class="chip" onclick="setChip('s_alcol','no',this)">Nessuno</button>
+        <button class="chip" onclick="setChip('s_alcol','1',this)">1 bicchiere</button>
+        <button class="chip" onclick="setChip('s_alcol','2',this)">2 bicchieri</button>
+        <button class="chip" onclick="setChip('s_alcol','3+',this)">3+</button>
+      </div>
+    </div>
+
+    <div class="metric">
+      <div class="metric-name">Attività fisica oggi</div>
+      <div class="chips" id="chips_s_sport">
+        <button class="chip" onclick="setChip('s_sport','no',this)">Nessuna</button>
+        <button class="chip" onclick="setChip('s_sport','leggera',this)">Leggera</button>
+        <button class="chip" onclick="setChip('s_sport','intensa',this)">Intensa</button>
+      </div>
+    </div>
+
+    <div class="metric">
+      <div class="metric-name">Ultimo caffè</div>
+      <div class="chips" id="chips_s_caffe">
+        <button class="chip" onclick="setChip('s_caffe','no',this)">Nessuno</button>
+        <button class="chip" onclick="setChip('s_caffe','mattina',this)">Mattina</button>
+        <button class="chip" onclick="setChip('s_caffe','pomeriggio',this)">Pomeriggio</button>
+        <button class="chip" onclick="setChip('s_caffe','sera',this)">Sera</button>
+      </div>
+    </div>
+
+    <div class="metric">
+      <div class="metric-name">Note</div>
+      <textarea class="note-area" id="s_note" placeholder="Stress acuto, viaggio, malattia, evento particolare..."></textarea>
+    </div>
+  </div>
+
+  <button class="save-btn" onclick="saveSession('sera')">Salva sera</button>
+</div>
+
+<!-- ===================== STORICO ===================== -->
+<div class="view" id="view-storico">
+
+  <div class="history-controls" style="margin-top:16px">
+    <button class="ctrl-btn" onclick="exportCSV()">⬇ Esporta CSV</button>
+    <button class="ctrl-btn danger" onclick="clearAll()">Cancella tutto</button>
+  </div>
+
+  <div id="historyList"></div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ===================== STATE =====================
+const STORAGE_KEY = 'biometrico_log';
+const state = {
+  scales: {},
+  chips: {}
+};
+
+function getAll() {
+  try {
+    return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+  } catch(e) { return []; }
+}
+
+function saveAll(data) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+}
+
+// ===================== DATE =====================
+function formatDate(d) {
+  return d.toLocaleDateString('it-IT', { weekday: 'short', day: 'numeric', month: 'short' });
+}
+
+function todayKey() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+document.getElementById('headerDate').textContent = formatDate(new Date());
+
+// ===================== NAV =====================
+function showView(name) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('view-' + name).classList.add('active');
+  event.currentTarget.classList.add('active');
+
+  if (name === 'storico') renderHistory();
+}
+
+// ===================== SCALE =====================
+function setScale(key, val, btn) {
+  state.scales[key] = val;
+  const parent = btn.parentElement;
+  parent.querySelectorAll('.scale-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+}
+
+// ===================== CHIPS =====================
+function setChip(key, val, btn) {
+  state.chips[key] = val;
+  const parent = btn.parentElement;
+  parent.querySelectorAll('.chip').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+}
+
+// ===================== SAVE =====================
+function saveSession(session) {
+  const data = getAll();
+  const now = new Date();
+  const ts = now.toISOString();
+  const dateKey = todayKey();
+
+  let entry = {};
+
+  if (session === 'mattina') {
+    entry = {
+      ts, dateKey, session,
+      letto: document.getElementById('m_letto').value,
+      sveglia: document.getElementById('m_sveglia').value,
+      sonno: state.scales['m_sonno'] || null,
+      energia_risveglio: state.scales['m_energia'] || null,
+    };
+  } else if (session === 'mezzogiorno') {
+    entry = {
+      ts, dateKey, session,
+      energia_fis: state.scales['g_energiafis'] || null,
+      lucidita: state.scales['g_lucidita'] || null,
+      umore: state.scales['g_umore'] || null,
+    };
+  } else if (session === 'sera') {
+    entry = {
+      ts, dateKey, session,
+      energia_fis: state.scales['s_energiafis'] || null,
+      lucidita: state.scales['s_lucidita'] || null,
+      stress: state.scales['s_stress'] || null,
+      alcol: state.chips['s_alcol'] || null,
+      sport: state.chips['s_sport'] || null,
+      caffe: state.chips['s_caffe'] || null,
+      note: document.getElementById('s_note').value.trim() || null,
+    };
+  }
+
+  data.push(entry);
+  saveAll(data);
+  showToast('Salvato ✓', 'success');
+  resetForm(session);
+}
+
+function resetForm(session) {
+  if (session === 'mattina') {
+    ['m_sonno','m_energia'].forEach(k => {
+      delete state.scales[k];
+      document.querySelectorAll(`#scale_${k} .scale-btn`).forEach(b => b.classList.remove('selected'));
+    });
+  } else if (session === 'mezzogiorno') {
+    ['g_energiafis','g_lucidita','g_umore'].forEach(k => {
+      delete state.scales[k];
+      document.querySelectorAll(`#scale_${k} .scale-btn`).forEach(b => b.classList.remove('selected'));
+    });
+  } else if (session === 'sera') {
+    ['s_energiafis','s_lucidita','s_stress'].forEach(k => {
+      delete state.scales[k];
+      document.querySelectorAll(`#scale_${k} .scale-btn`).forEach(b => b.classList.remove('selected'));
+    });
+    ['s_alcol','s_sport','s_caffe'].forEach(k => {
+      delete state.chips[k];
+      document.querySelectorAll(`#chips_${k} .chip`).forEach(b => b.classList.remove('selected'));
+    });
+    document.getElementById('s_note').value = '';
+  }
+}
+
+// ===================== HISTORY =====================
+const SESSION_LABELS = { mattina: 'Mattina', mezzogiorno: 'Mezzogiorno', sera: 'Sera' };
+
+function dotClass(v) {
+  if (!v) return '';
+  return `dot dot-${v}`;
+}
+
+function renderHistory() {
+  const data = getAll();
+  const container = document.getElementById('historyList');
+
+  if (!data.length) {
+    container.innerHTML = `<div class="empty-state"><span class="icon">📊</span>Nessuna rilevazione ancora.<br>Inizia dalla scheda Mattina.</div>`;
+    return;
+  }
+
+  const sorted = [...data].reverse();
+  let html = '';
+
+  for (const e of sorted) {
+    const d = new Date(e.ts);
+    const label = formatDate(d) + ' ' + d.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
+    let metrics = '';
+
+    if (e.session === 'mattina') {
+      if (e.letto && e.sveglia) metrics += `<div class="entry-metric">🛏 ${e.letto}→${e.sveglia}</div>`;
+      if (e.sonno) metrics += `<div class="entry-metric"><span class="${dotClass(e.sonno)}"></span><span class="entry-metric-val">${e.sonno}</span>&nbsp;sonno</div>`;
+      if (e.energia_risveglio) metrics += `<div class="entry-metric"><span class="${dotClass(e.energia_risveglio)}"></span><span class="entry-metric-val">${e.energia_risveglio}</span>&nbsp;energia</div>`;
+    } else if (e.session === 'mezzogiorno') {
+      if (e.energia_fis) metrics += `<div class="entry-metric"><span class="${dotClass(e.energia_fis)}"></span><span class="entry-metric-val">${e.energia_fis}</span>&nbsp;energia</div>`;
+      if (e.lucidita) metrics += `<div class="entry-metric"><span class="${dotClass(e.lucidita)}"></span><span class="entry-metric-val">${e.lucidita}</span>&nbsp;lucidità</div>`;
+      if (e.umore) metrics += `<div class="entry-metric"><span class="${dotClass(e.umore)}"></span><span class="entry-metric-val">${e.umore}</span>&nbsp;umore</div>`;
+    } else if (e.session === 'sera') {
+      if (e.energia_fis) metrics += `<div class="entry-metric"><span class="${dotClass(e.energia_fis)}"></span><span class="entry-metric-val">${e.energia_fis}</span>&nbsp;energia</div>`;
+      if (e.lucidita) metrics += `<div class="entry-metric"><span class="${dotClass(e.lucidita)}"></span><span class="entry-metric-val">${e.lucidita}</span>&nbsp;lucidità</div>`;
+      if (e.stress) metrics += `<div class="entry-metric"><span class="${dotClass(e.stress)}"></span><span class="entry-metric-val">${e.stress}</span>&nbsp;stress</div>`;
+      if (e.alcol) metrics += `<div class="entry-metric">🍷 ${e.alcol}</div>`;
+      if (e.sport && e.sport !== 'no') metrics += `<div class="entry-metric">🏃 ${e.sport}</div>`;
+      if (e.caffe && e.caffe !== 'no') metrics += `<div class="entry-metric">☕ ${e.caffe}</div>`;
+      if (e.note) metrics += `<div class="entry-metric" style="width:100%;color:var(--text-muted);font-size:12px;margin-top:4px">📝 ${e.note}</div>`;
+    }
+
+    html += `
+      <div class="entry-card">
+        <div class="entry-header">
+          <span class="entry-date">${label}</span>
+          <span class="entry-session">${SESSION_LABELS[e.session] || e.session}</span>
+        </div>
+        <div class="entry-metrics">${metrics}</div>
+      </div>`;
+  }
+
+  container.innerHTML = html;
+}
+
+// ===================== CSV EXPORT =====================
+function exportCSV() {
+  const data = getAll();
+  if (!data.length) { showToast('Nessun dato da esportare', 'error'); return; }
+
+  const headers = ['timestamp','data','sessione','letto','sveglia','sonno','energia_risveglio','energia_fis','lucidita','umore','stress','alcol','sport','caffe','note'];
+  const rows = data.map(e => [
+    e.ts || '',
+    e.dateKey || '',
+    e.session || '',
+    e.letto || '',
+    e.sveglia || '',
+    e.sonno || '',
+    e.energia_risveglio || '',
+    e.energia_fis || '',
+    e.lucidita || '',
+    e.umore || '',
+    e.stress || '',
+    e.alcol || '',
+    e.sport || '',
+    e.caffe || '',
+    (e.note || '').replace(/,/g, ';').replace(/\n/g, ' ')
+  ].join(','));
+
+  const csv = [headers.join(','), ...rows].join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `biometrico_${todayKey()}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('CSV esportato ✓', 'success');
+}
+
+// ===================== CLEAR =====================
+function clearAll() {
+  if (confirm('Cancellare tutti i dati? L\'operazione è irreversibile.')) {
+    localStorage.removeItem(STORAGE_KEY);
+    renderHistory();
+    showToast('Dati cancellati', '');
+  }
+}
+
+// ===================== TOAST =====================
+function showToast(msg, type) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show' + (type ? ' ' + type : '');
+  setTimeout(() => { t.className = 'toast'; }, 2200);
+}
+</script>
+</body>
+</html>
